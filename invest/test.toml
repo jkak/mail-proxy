@@ -1,0 +1,7 @@
+ServerHost = "smtp.partner.outlook.cn"
+ServerPort = 587
+
+# the account info use to send mail
+FromUser = "jkak@github.com"
+FromNick = "jkak"
+Password = "password"
