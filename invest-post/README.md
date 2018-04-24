@@ -71,3 +71,81 @@ send mail sucessful
 
 * go-mail/mail包做为客户端使用，是可以直接带附件，但做为代理端，因为通过sendPost.py上传的文件，已经变成了文件流，因此不能直接使用Attach方法直接发送。
 
+
+
+
+### test reader for post
+
+server
+
+```shell
+# go run multipart-reader.go -c mail.toml
+
+2018/04/24 23:41:27 file name:
+2018/04/24 23:41:27 form name:content
+2018/04/24 23:41:27 	file header:map[Content-Disposition:[form-data; name="content"]]
+2018/04/24 23:41:27 	conent len:28
+2018/04/24 23:41:27 	conent buf:content here without newline
+2018/04/24 23:41:27 file name:
+2018/04/24 23:41:27 form name:tos
+2018/04/24 23:41:27 	file header:map[Content-Disposition:[form-data; name="tos"]]
+2018/04/24 23:41:27 	conent len:8
+2018/04/24 23:41:27 	conent buf:op@jk.cn
+2018/04/24 23:41:27 file name:
+2018/04/24 23:41:27 form name:sender
+2018/04/24 23:41:27 	file header:map[Content-Disposition:[form-data; name="sender"]]
+2018/04/24 23:41:27 	conent len:2
+2018/04/24 23:41:27 	conent buf:op
+2018/04/24 23:41:27 file name:
+2018/04/24 23:41:27 form name:mailtype
+2018/04/24 23:41:27 	file header:map[Content-Disposition:[form-data; name="mailtype"]]
+2018/04/24 23:41:27 	conent len:4
+2018/04/24 23:41:27 	conent buf:text
+2018/04/24 23:41:27 file name:
+2018/04/24 23:41:27 form name:subject
+2018/04/24 23:41:27 	file header:map[Content-Disposition:[form-data; name="subject"]]
+2018/04/24 23:41:27 	conent len:12
+2018/04/24 23:41:27 	conent buf:subject-here
+2018/04/24 23:41:27 file name:text/golang.md
+2018/04/24 23:41:27 form name:golang.md
+2018/04/24 23:41:27 	file header:map[Content-Disposition:[form-data; name="golang.md"; filename="text/golang.md"]]
+2018/04/24 23:41:27 	conent len:13
+2018/04/24 23:41:27 	conent buf:hello golang
+
+2018/04/24 23:41:27 file name:text/hello.md
+2018/04/24 23:41:27 form name:hello.md
+2018/04/24 23:41:27 	file header:map[Content-Disposition:[form-data; name="hello.md"; filename="text/hello.md"]]
+2018/04/24 23:41:27 	conent len:32
+2018/04/24 23:41:27 	conent buf:## test markdown
+hello markdown
+```
+
+client
+
+```shell
+# python sendPost.py op@jk.cn op
+
+200
+```
+
+如上，通过r.MultipartReader()，可以获取到一个reader，并通过遍历reader，可以得到所有的post信息。包括：
+
+* data相关字段
+  * 对应python中request.post中的data参数。
+  * 这些字段只有form name，没有file name。
+  * 通过p.FormName()可以获得相关字段：
+    * subject
+    * content
+    * tos
+    * sender
+  * 通过对应的p.Read(buf)可以将内容读到buf中。
+* files相关字段
+  * 对应python中request.post中的files参数。
+  * files字段即有form name，也有file name。
+    * form name对应请求来源中file_data列表中的第一个名字；
+    * file name对应请求来源中file_data列表中的第二个名字；
+  * 通过p.FileName()可以获得相关文件名：
+    * text/golang.md
+    * text/hello.md
+  * 对应的p.Read(buf)可以将内容读到buf中。
+

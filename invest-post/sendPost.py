@@ -14,6 +14,7 @@ sender = sys.argv[2]
 
 file_names = ['text/golang.md', 'text/hello.md']
 base = os.path.basename
+# (formname, (filename, fileDATA))
 file_data = [(base(name), (name, open(name, 'rb').read())) for name in file_names]
 
 url = 'http://localhost:8080/mail'
