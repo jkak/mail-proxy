@@ -2,7 +2,7 @@
 
 
 
-### about gomail
+### 1 about gomail
 
 在上述三个库中。gomail是star上千，且使用也比较方便的库。并且有示例可以做为daemon运行。但这个库最大的问题是作者已经有2年没有更新了。而且从issues中的信息看。作者的邮箱也已经满了而没有处理。感觉作者已经彻底消失了。
 
@@ -14,7 +14,7 @@
 
 
 
-### test mail for post
+### 2 test mail for post
 
 https://github.com/go-mail/mail forked form gomail.
 
@@ -74,7 +74,7 @@ send mail sucessful
 
 
 
-### test reader for post
+### 3 test reader for post
 
 server
 
@@ -148,4 +148,49 @@ client
     * text/golang.md
     * text/hello.md
   * 对应的p.Read(buf)可以将内容读到buf中。
+
+
+
+### 4 parse post from reader
+
+server
+
+```shell
+# go run parseReader.go -c mail.toml
+2018/04/25 09:37:28 reader:&{bufReader:0xc4200b62a0 currentPart:<nil> partsRead:0 nl:[13 10] nlDashBoundary:[13 10 45 45 97 102 48 52 54 102 100 99 53 49 48 51 52 50 50 98 98 99 53 102 102 49 50 52 48 55 97 100 101 52 50 53] dashBoundaryDash:[45 45 97 102 48 52 54 102 100 99 53 49 48 51 52 50 50 98 98 99 53 102 102 49 50 52 48 55 97 100 101 52 50 53 45 45] dashBoundary:[45 45 97 102 48 52 54 102 100 99 53 49 48 51 52 50 50 98 98 99 53 102 102 49 50 52 48 55 97 100 101 52 50 53]}
+2018/04/25 08:37:28 form name:content; buf:content here without newline
+2018/04/25 08:37:28 form name:tos; buf:op@jk.cn
+2018/04/25 08:37:28 form name:sender; buf:op
+2018/04/25 08:37:28 form name:mailtype; buf:text
+2018/04/25 08:37:28 form name:subject; buf:subject-here
+2018/04/25 08:37:28 	file name: text/golang.md
+2018/04/25 08:37:28 	file name: text/hello.md
+k=mailtype, v=text
+k=subject, v=subject-here
+k=content, v=content here without newline
+k=tos, v=op@jk.cn
+k=sender, v=op
+```
+
+client
+
+```shell
+# python sendPost.py op@jk.cn op
+mailtype:text
+subject:subject-here
+content:content here without newline
+tos:op@jk.cn
+sender:op
+file num:2
+
+200
+```
+
+如上，通过对reader进行NextPart()循环处理。可以获取到所有的请求参数及文件。
+
+将form参数放入formMap中，file参数放入fileMap中。
+
+剩下的问题是，能否将接收到的文件流，直接发送出去，而不是将其先存盘后再调用Attach()方法再次读取。
+
+
 
