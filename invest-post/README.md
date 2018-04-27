@@ -194,3 +194,74 @@ file num:2
 
 
 
+### diff about each package
+
+#### 1) go-gomail/gomail
+
+```go
+//
+mail := gomail.NewDialer("smtp.example.com", 587, "user", "123456")
+mail.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+
+err := mail.DialAndSend(m)
+// DialAndSend() 调用如下2项
+mail.Dial()
+return Send(s, m...)
+```
+
+其中Dial()
+
+```go
+conn, err := netDialTimeout("tcp", addr(d.Host, d.Port), 10*time.Second)
+if d.SSL {                                                                       	conn = tlsClient(conn, d.tlsConfig())                                       }
+c, err := smtpNewClient(conn, d.Host)
+if !d.SSL {
+  c.Extension("STARTTLS")
+  c.StartTLS(d.tlsConfig())
+}
+```
+
+调用smtp.[StartTLS()](http://localhost:6060/pkg/net/smtp/#Client.StartTLS)是解决问题的一个关键。
+
+
+
+#### 2) jordan-wright/email
+
+```go
+e := email.NewEmail()
+var tcfg = new(tls.Config)
+tcfg.ServerName = cfg.ServerHost
+err := e.SendWithTLS(
+  hostPort,
+  smtp.PlainAuth("", cfg.FromUser, cfg.Password, cfg.ServerHost),
+  tcfg
+)
+```
+
+SendWithTLS()
+
+```go
+//
+c, err := smtp.Dial(addr)
+c.Extension("STARTTLS")
+c.StartTLS(t)
+```
+
+虽然使用了STARTTLS，发送却是失败。
+
+
+
+#### 3) domodwyer/mailyak
+
+```go
+//
+mail := mailyak.New(
+  "mail.host.com:25",
+  smtp.PlainAuth("", "user", "pass", "mail.host.com")
+)
+mail.Send()
+// Send use smtp.SendMail() directly
+```
+
+处理得比较简单。不能适应smtp.outlook.cn。
+
