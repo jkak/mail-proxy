@@ -265,3 +265,90 @@ mail.Send()
 
 处理得比较简单。不能适应smtp.outlook.cn。
 
+
+
+
+
+#### 4) why email failed
+
+对比gomail和email，两者都启动了StartTLS，但后者却失败了。还需要再分析原因。
+
+对比两边除了`StartTLS`外，还有`c.Extension("AUTH")`的差异。
+
+gomail
+
+```go
+// gomail/smtp.go
+if ok, auths := c.Extension("AUTH"); ok {
+    fmt.Printf("auth string:%s\n", auths)
+    if strings.Contains(auths, "CRAM-MD5") {
+         d.Auth = smtp.CRAMMD5Auth(d.Username, d.Password)
+    } else if strings.Contains(auths, "LOGIN") &&
+        !strings.Contains(auths, "PLAIN") {
+        d.Auth = &loginAuth{
+            username: d.Username,
+            password: d.Password,
+            host:     d.Host,
+        }
+    } else {
+        d.Auth = smtp.PlainAuth("", d.Username, d.Password, d.Host)
+    }
+}
+
+if d.Auth != nil {
+	if err = c.Auth(d.Auth); err != nil {
+		c.Close()
+		return nil, err
+	}
+}
+```
+
+也就是，默认不需要人工生成传值smtp.PlainAuth()，由内部先执行`c.Extension("AUTH")`，根据返回结果再判断如何传递认证信息。通过添加上述的`fmt.Printf`，可以看到输出值是：**`auth string:LOGIN XOAUTH2`**。根据该值，自己构造一个loginAuth对象实例。这是一个实现了smtp.Auth接口的结构体。实现在gomail/auth.go中。
+
+email
+
+```shell
+if a != nil {
+	if ok, auths := c.Extension("AUTH"); ok {
+		if err = c.Auth(a); err != nil {
+			log.Print("error: Auth(a)")
+			return err
+		}
+	}
+}
+```
+
+变量a是由调用者传入的smt.Auth接口变量。虽然也先调用`c.Extension("AUTH")`，但确实支持后，直接进行了`c.Auth(a)`操作。没有管服务端使用什么判断。
+
+gomail在执行c.Auth()前，做了很多准备工作。
+
+参考[wikipedia](https://en.wikipedia.org/wiki/SMTP_Authentication) Auth有多种协议，每种协议有不同的编码。
+
+* PLAIN
+* LOGIN
+* CRAM_MD5
+* OAUTH
+
+
+
+
+观察email
+
+```go
+// 调用email时，将smtp.Auth项按文档要求填写
+send err:504 5.7.4 Unrecognized authentication type 
+
+// 调用email时，将smtp.Auth项置为nil。
+send err:530 5.7.57 SMTP; Client was not authenticated to send anonymous mail during MAIL FROM
+```
+
+对于email，因为发送者的账号和密码是通过smtp.Auth输入的。email已经不能提取出账号和密码了。而gomail是将相关信息通过结构体存储的。内部还可以自己按需求进行封装。因此更灵活。
+
+
+
+#### 没有银弹
+
+gomail可以发送，但从远端传来的附件是文件流，需要解决适配文件流的问题
+
+email不能直接发送，
+
