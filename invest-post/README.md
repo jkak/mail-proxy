@@ -34,7 +34,6 @@ server:
 2018/04/23 23:38:01 file size:13
 2018/04/23 23:38:01 header   :map[Content-Disposition:[form-data; name="golang.md"; filename="text/golang.md"]]
 2018/04/23 23:38:01 sender:op
-
 ```
 
 client
@@ -194,7 +193,7 @@ file num:2
 
 
 
-### diff about each package
+### 5 diff about each package
 
 #### 1) go-gomail/gomail
 
@@ -351,4 +350,20 @@ send err:530 5.7.57 SMTP; Client was not authenticated to send anonymous mail du
 gomail可以发送，但从远端传来的附件是文件流，需要解决适配文件流的问题
 
 email不能直接发送，
+
+
+
+### 6 modify gomail
+
+基于gomail的一个PR。https://github.com/go-gomail/gomail/pull/78/files
+
+并从https://github.com/go-mail/mail开分支。自行增加上述PR到个人仓库。
+
+在原有的Attach文件的基础上，增加AttachReader函数。
+
+```go
+func (m *Message) AttachReader(name string, r io.Reader, settings ...FileSetting)
+```
+
+具体参考github.com/jkak/mail。d8f857 commit。
 
