@@ -4,15 +4,16 @@
 import requests
 import os, sys
 
-if len(sys.argv) != 3:
+if len(sys.argv) != 4:
     print len(sys.argv)
-    print "usage: %s tos sender" % sys.argv[0]
+    print "usage: %s tos cc sender" % sys.argv[0]
     sys.exit(1)
 
 tos = sys.argv[1]
-sender = sys.argv[2]
+cc = sys.argv[2]
+sender = sys.argv[3]
 
-file_names = ['text/golang.md', 'text/hello.md']
+file_names = ['text/china中国.txt', 'text/golang.md', 'text/hello.md']
 base = os.path.basename
 # (formname, (filename, fileDATA))
 file_data = [(base(name), (name, open(name, 'rb').read())) for name in file_names]
@@ -25,6 +26,7 @@ with open('text/cont.txt') as fd:
 data = {
    "subject": "subject-here",
    'tos': tos,
+   'cc': cc,
    'mailtype': 'text',
    'sender': sender,
    'content': msg
