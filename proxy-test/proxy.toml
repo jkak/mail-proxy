@@ -1,0 +1,24 @@
+# smtp server info
+ServerHost = "smtp.partner.outlook.cn"
+ServerPort = 587
+
+# proxy port for local
+ProxyPort = ":8080"
+
+# log info
+LogFile = "logs/mail.log"
+Debug = true
+
+# content length. 1M by default
+ContLen = 1048576
+
+# the account info use to send mail
+# sender:user:password
+Senders = [
+    "alarm:alarm1@your.cn:pwd",
+    "alarm:alarm2@your.cn:pwd",
+    "alarm:alarm3@your.cn:pwd",
+    "monitor:monitor@your.cn:pwd",
+    "test:test@your.cn:pwd"
+]
+

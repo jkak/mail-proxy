@@ -13,3 +13,8 @@ mail proxy for people in a corp.
 
 * invest post of list go-mail/mail package [refer](invest-post/README.md)
 
+### proxy-test.go
+
+* used as an proxy with proxy.toml
+
+
