@@ -4,13 +4,19 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"math/rand"
 	"net/http"
 	"strings"
+	"time"
+
+	gomail "github.com/jkak/mail"
 )
 
 const (
 	parseErr = "err: parse reader failed"
 	paramErr = "err: some parameter is blank"
+	statusEr = "err: send mail failed"
+	statusOK = "send mail sucessful"
 )
 
 type formMapping map[string]string
@@ -64,6 +70,49 @@ func parseToCc(f formMapping) ([]string, []string) {
 	return to, cc
 }
 
+func sendMail(formMap formMapping, fileMap fileMapping) error {
+	To, Cc := parseToCc(formMap)
+	logger.Print("To:", To)
+	logger.Print("Cc:", Cc)
+
+	// Message
+	m := gomail.NewMessage()
+	m.SetHeader("To", To...)
+	if len(Cc) != 0 && Cc[0] != "" {
+		m.SetHeader("Cc", Cc...)
+	}
+	m.SetHeader("Subject", formMap["subject"])
+	m.SetBody("text/html", formMap["content"])
+	// attachments
+	for fname, contReader := range fileMap {
+		m.AttachReader(fname, contReader)
+	}
+
+	var sender Sender
+	senders := senderMap[formMap["sender"]]
+	var idx int32
+	if len(senders) != 1 {
+		idx = rand.Int31n(int32(len(senders)))
+	}
+	sender = senders[idx]
+	m.SetHeader("From", sender.Account)
+	logger.Printf("rand:%d; sender=%+v", idx, sender.Account)
+
+	d := gomail.NewDialer(cfg.ServerHost, cfg.ServerPort, sender.Account, sender.Password)
+	for i := 1; i <= 3; i++ {
+		err := d.DialAndSend(m)
+		if err != nil {
+			logger.Printf("send err, retry=%d, err info:%s\n", i, err)
+			time.Sleep(time.Second * time.Duration(cfg.ProxySleep))
+			continue
+		} else {
+			logger.Print(statusOK)
+			return nil
+		}
+	}
+	return errors.New(statusEr)
+}
+
 // parse post form and file
 func handleMail(w http.ResponseWriter, r *http.Request) {
 	formMap, fileMap, merr := parseRequest(w, r)
@@ -73,9 +122,9 @@ func handleMail(w http.ResponseWriter, r *http.Request) {
 	logger.Info("formMap:", formMap)
 	logger.Info("fileMap:", fileMap)
 
-	to, cc := parseToCc(formMap)
-	logger.Print("To:", to)
-	logger.Print("Cc:", cc)
-
-	return
+	if err := sendMail(formMap, fileMap); err != nil {
+		w.Write([]byte(err.Error()))
+	} else {
+		w.Write([]byte(statusOK))
+	}
 }
