@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"strings"
 )
 
 const (
@@ -51,6 +52,18 @@ func parseRequest(w http.ResponseWriter, r *http.Request) (formMapping, fileMapp
 	return formMap, fileMap, nil
 }
 
+func parseToCc(f formMapping) ([]string, []string) {
+	// to and cc
+	var to, cc []string
+	for _, t := range strings.Split(f["tos"], ",") {
+		to = append(to, strings.TrimSpace(t))
+	}
+	for _, c := range strings.Split(f["cc"], ",") {
+		cc = append(cc, strings.TrimSpace(c))
+	}
+	return to, cc
+}
+
 // parse post form and file
 func handleMail(w http.ResponseWriter, r *http.Request) {
 	formMap, fileMap, merr := parseRequest(w, r)
@@ -59,6 +72,10 @@ func handleMail(w http.ResponseWriter, r *http.Request) {
 	}
 	logger.Info("formMap:", formMap)
 	logger.Info("fileMap:", fileMap)
+
+	to, cc := parseToCc(formMap)
+	logger.Print("To:", to)
+	logger.Print("Cc:", cc)
 
 	return
 }
