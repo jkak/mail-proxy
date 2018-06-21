@@ -4,6 +4,7 @@ ServerPort = 587
 
 # proxy port for local
 ProxyPort = ":8080"
+ProxySleep = 5
 
 # log info
 LogFile = "logs/mail.log"

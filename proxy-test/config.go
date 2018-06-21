@@ -17,6 +17,7 @@ var (
 type Config struct {
 	ServerHost string // mail server host
 	ServerPort int    // mail server port
+	ProxySleep int    // proxy server sleep second before retry
 	ProxyPort  string // proxy port for local
 
 	LogFile string   // log file name
