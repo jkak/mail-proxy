@@ -14,12 +14,28 @@ Debug = true
 ContLen = 1048576
 
 # the account info use to send mail
-# sender:user:password
-Senders = [
-    "alarm:alarm1@your.cn:pwd",
-    "alarm:alarm2@your.cn:pwd",
-    "alarm:alarm3@your.cn:pwd",
-    "monitor:monitor@your.cn:pwd",
-    "test:test@your.cn:pwd"
-]
+[[Senders]]
+name = "alarm"
+account = "alarm1@your.cn"
+password = "pwd1"
+
+[[Senders]]
+name = "alarm"
+account = "alarm2@your.cn"
+password = "pwd2"
+
+[[Senders]]
+name = "alarm"
+account = "alarm3@your.cn"
+password = "pwd3"
+
+[[Senders]]
+name = "monitor"
+account = "monitor@your.cn"
+password = "pwdmonitor"
+
+[[Senders]]
+name = "test"
+account = "test@your.cn"
+password = "pwdtest"
 

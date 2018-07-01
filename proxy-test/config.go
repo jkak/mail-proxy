@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -23,11 +22,12 @@ type Config struct {
 	LogFile string   // log file name
 	Debug   bool     // log debug switch
 	ContLen int      // mail content length
-	Senders []string // sender info for send mail
+	Senders []Sender // sender info for send mail
 }
 
 // Sender struct for sender info
 type Sender struct {
+	Name     string // sender name
 	Account  string // who send the email
 	Password string // password of whom
 }
@@ -37,15 +37,10 @@ func decodeConfig() {
 	if err != nil {
 		log.Fatalf("decode cfg err:%s\n", err)
 	}
-	// fmt.Printf("cfg:%#v\n", cfg)
 
 	senderMap = make(map[string][]Sender)
 	for _, send := range cfg.Senders {
-		// fmt.Println(send)
-		sInfo := strings.Split(send, ":")
-		sID := sInfo[0]
-		sender := Sender{Account: sInfo[1], Password: sInfo[2]}
-		senderMap[sID] = append(senderMap[sID], sender)
+		senderMap[send.Name] = append(senderMap[send.Name], send)
 	}
 	for k, v := range senderMap {
 		fmt.Printf("sender: %s\tLen:%d\n", k, len(v))

@@ -22,9 +22,7 @@ func init() {
 	decodeConfig()
 
 	// setting logger
-	rotlog.JSONFormat = false
 	rotlog.BaseFileName = cfg.LogFile
-	rotlog.BaseLinkName = rotlog.BaseFileName
 	if cfg.Debug {
 		rotlog.LogLevel = rotlog.DebugLevel
 	} else {
