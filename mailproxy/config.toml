@@ -1,0 +1,54 @@
+# smtp server info
+ServerHost = "smtp.partner.outlook.cn"
+ServerPort = 587
+
+# proxy port for local
+ProxyPort = ":8080"
+# sender keepalive seconds
+ProxyKeepalive = 60
+
+# wait seconds before retry
+RetryInterval = 5
+# retry times
+RetryTimes = 3
+
+# log info
+LogFile = "logs/mail.log"
+# URI
+URI = "/mail"
+Debug = true
+
+# mail content length. 1M by default
+ContLen = 1048576
+
+# the mailUser info use to send mail
+[[Senders]]
+sendName = "alarm"
+mailUser = "alarm1@your.cn"
+password = "pwd1"
+length = 256
+
+[[Senders]]
+sendName = "alarm"
+mailUser = "alarm2@your.cn"
+password = "pwd2"
+length = 256
+
+[[Senders]]
+sendName = "alarm"
+mailUser = "alarm3@your.cn"
+password = "pwd3"
+length = 256
+
+[[Senders]]
+sendName = "monitor"
+mailUser = "monitor@your.cn"
+password = "pwdmonitor"
+length = 32
+
+[[Senders]]
+sendName = "test"
+mailUser = "test@your.cn"
+password = "pwdtest"
+length = 32
+
