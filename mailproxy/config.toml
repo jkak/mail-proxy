@@ -11,6 +11,10 @@ ProxyKeepalive = 60
 RetryInterval = 5
 # retry times
 RetryTimes = 3
+Timeout = 20
+
+StatusOK = "ok"
+StatusEr = "err"
 
 # log info
 LogFile = "logs/mail.log"

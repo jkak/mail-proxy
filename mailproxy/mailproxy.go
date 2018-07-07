@@ -2,15 +2,15 @@ package mailproxy
 
 import (
 	"bytes"
+	"net/http"
 
-	"github.com/jkak/mail"
 	rotlog "github.com/jkak/rotlogs/daterot"
 )
 
 type formMapping map[string]string
 type fileMapping map[string]*bytes.Buffer
 
-type chanMapping map[string]chan *mail.Message
+type chanMapping map[string]chan *sendMsg
 type senderMapping map[string][]Sender
 
 var (
@@ -24,4 +24,13 @@ var (
 func Init(cfgFile string) {
 	// read and decode config
 	decodeConfigAndInit(cfgFile)
+}
+
+func Run() {
+	// run sender
+	mailSenders()
+
+	// bind handler
+	http.HandleFunc(cfg.URI, handleMail)
+	Logger.Fatal(http.ListenAndServe(cfg.ProxyPort, nil))
 }

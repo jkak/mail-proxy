@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/BurntSushi/toml"
-	"github.com/jkak/mail"
 	rotlog "github.com/jkak/rotlogs/daterot"
 )
 
@@ -17,6 +16,10 @@ type Config struct {
 	ProxyKeepalive int    // proxy server keepalive a connection within seconds
 	RetryInterval  int    // proxy server sleep second before retry
 	RetryTimes     int    // proxy server retry times when send error
+	Timeout        int    // timeout in seconds for internal process
+
+	StatusOK string // status ok for response
+	StatusEr string // status error for response
 
 	LogFile string   // log file name
 	URI     string   // uri for client
@@ -60,7 +63,7 @@ func decodeConfigAndInit(f string) {
 
 	// init mail channel
 	for _, sender := range cfg.Senders {
-		mailCh[sender.MailUser] = make(chan *mail.Message, sender.Length)
+		mailCh[sender.MailUser] = make(chan *sendMsg, sender.Length)
 	}
 
 	for k, v := range senderMap {
