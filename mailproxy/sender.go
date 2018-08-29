@@ -62,7 +62,7 @@ func send2Server(sender Sender) {
 					time.Sleep(time.Second * time.Duration(cfg.RetryInterval))
 					continue
 				} else {
-					Logger.Print(cfg.StatusOK)
+					Logger.Printf("send2Server() send mail result: %s", cfg.StatusOK)
 					msg.statusCh <- cfg.StatusOK
 					goto OUT_FOR
 				}
@@ -94,7 +94,7 @@ func connect(s Sender) (mail.SendCloser, error) {
 		}
 		return s, nil
 	}
-	return nil, fmt.Errorf(ConnErr)
+	return nil, fmt.Errorf(connErr)
 }
 
 func reConnect(s Sender) (mail.SendCloser, error) {

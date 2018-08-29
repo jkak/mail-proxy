@@ -17,15 +17,17 @@ var (
 	cfg       = new(Config)
 	mailCh    = make(chanMapping)
 	senderMap = make(senderMapping)
-
+	// Logger for log
 	Logger = rotlog.LoggerPtr.Logger
 )
 
+// Init _
 func Init(cfgFile string) {
 	// read and decode config
 	decodeConfigAndInit(cfgFile)
 }
 
+// Run _
 func Run() {
 	// run sender
 	mailSenders()
