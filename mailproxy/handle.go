@@ -20,7 +20,31 @@ const (
 	sendErr   = "send to remote server timeout"
 )
 
+func parseGetRequest(w http.ResponseWriter, r *http.Request) (formMapping, fileMapping, error) {
+	r.ParseForm()
+	formMap := make(formMapping)
+
+	cont := r.FormValue("content")
+	if len(cont) >= cfg.ContLen {
+		cont = cont[:cfg.ContLen]
+	}
+	formMap["content"] = cont
+	formMap["subject"] = r.FormValue("subject")
+	formMap["sender"] = r.FormValue("sender")
+	formMap["tos"] = r.FormValue("tos")
+	formMap["cc"] = r.FormValue("cc")
+
+	if len(formMap["content"]) == 0 || len(formMap["subject"]) == 0 ||
+		len(formMap["tos"]) == 0 || len(formMap["sender"]) == 0 {
+		return nil, nil, fmt.Errorf(paramErr)
+	}
+	return formMap, nil, nil
+}
+
 func parseRequest(w http.ResponseWriter, r *http.Request) (formMapping, fileMapping, error) {
+	if r.Method == http.MethodGet {
+		return parseGetRequest(w, r)
+	}
 	rd, err := r.MultipartReader()
 	if err != nil {
 		Logger.Debugf("parseRequest() %s", parseErr)
